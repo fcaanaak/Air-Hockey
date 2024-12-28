@@ -1,0 +1,35 @@
+
+
+
+int main(){
+int gd = DETECT, gm;
+
+    initwindow(WINDOWX,WINDOWY);
+
+    // spawning the mass
+    SimpleEntity mass;
+
+    mass_obj phys;
+
+    float time = 0;
+
+    // Setting up all the masses parameters
+    entitySetup(mass,400,400,0,1,1);
+
+
+    // registering mouse handlers
+    registermousehandler(WM_LBUTTONDOWN, mass_drag);// Moving the mass
+    registermousehandler(WM_LBUTTONUP,mass_release);// Releasing the mass after moving it
+    registermousehandler(WM_RBUTTONDOWN,reset);// Resetting the system
+    // Update all entities
+    update(mass,phys,time);
+
+    // Closing shit
+    getch();
+    closegraph();
+
+    return 0;
+
+
+
+}
