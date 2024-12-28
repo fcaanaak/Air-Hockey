@@ -3,7 +3,10 @@
 #include <math.h>
 #include <Windows.h>
 
+#include "Player.h"
 #include "Vector2.h"
+#include "Puck.h"
+
 #define WINDOWX 800
 #define WINDOWY 1000
 
@@ -30,27 +33,6 @@ TO DO
 */
 
 
-
-struct Player{
-
-    Vector2 last_pos;
-    Vector2 current_pos;
-
-    float radius = 60;
-    Vector2 velocity;
-
-    float mass = 6;
-
-    float speed = 20;
-
-    bool is_bot = false;
-
-    Vector2 stored_velocity;
-};
-
-
-
-
 // Useful function which will convert
 // all numbers passed in to screen coordinates
 // allows us to specify all postion coordinates
@@ -61,24 +43,6 @@ float c_to_scrn(float point){
 
 }
 
-// Object that can move on screen
-struct Puck{
-
-    // mass in kg
-    float mass = 50;
-
-    float radius = 30;
-
-    float speed = 0;
-
-    Vector2 position;
-
-    Vector2 velocity;
-
-    Vector2 acceleration;
-
-
-};
 
 
 float dist_x;
@@ -91,16 +55,15 @@ bool collided = false;
 
 // A function for hit detection for player objects (aka player and the bot)
 void player_hit_detect(Player &player, Puck &puck, bool isbot){
+
     // Always track the distance between the player and the puck
-    dist_x = (player.current_pos.x-400) - puck.position.x;
-    dist_y = (player.current_pos.y-400) - puck.position.y;
-
-
+    dist_x = (player.current_pos.x-WINDOWX/2.0) - puck.position.x;
+    dist_y = (player.current_pos.y-WINDOWX/2.0) - puck.position.y;
 
     if (isbot){speed_mod = 0.2;}
     else{speed_mod = 1;}
 
-    // If we have the puck has entered the region of the player and we havent already collided
+    // If the puck has entered the region of the player and we havent already collided
     if (sqrt( pow(dist_x,2) + pow(dist_y,2) ) <= (player.radius + puck.radius) && !collided){
 
 
@@ -137,7 +100,7 @@ void player_hit_detect(Player &player, Puck &puck, bool isbot){
 
         }
 
-        // If the puck is to the left of the player upon collision
+        // If the puck is to the right of thce player upon collision
         else if (dist_x < 0){
 
             // First move the puck away from the player as if it was being pushed
