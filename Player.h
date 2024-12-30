@@ -2,23 +2,77 @@
 #define PLAYER_H_INCLUDED
 
 #include "Vector2.h"
+#include <graphics.h>
 
-struct Player{
+class Player{
 
-    Vector2 last_pos;
-    Vector2 current_pos;
+private:
+    float mass;
+    float speed;
+    bool isBot;
+    float radius;
 
-    float radius = 60;
     Vector2 velocity;
+    Vector2 acceleration;
+    Vector2 currentPos;
+    Vector2 storedVelocity;
+    Vector2 lastPos;
 
-    float mass = 6;
 
-    float speed = 20;
 
-    bool is_bot = false;
+public:
+    Player(float _radius, float _mass, float _speed, bool _isBot){
+        mass = _mass;
+        radius = _radius;
+        speed = _speed;
+        isBot = _isBot;
 
-    Vector2 stored_velocity;
+    }
+
+    Vector2& getCurrentPos(){
+        return currentPos;
+    }
+
+    Vector2 &getVelocity(){
+        return velocity;
+    }
+
+    Vector2 &getAcceleration(){
+        return acceleration;
+    }
+
+    Vector2 &getLastPos(){
+        return lastPos;
+    }
+
+    Vector2 &getStoredVelocity(){
+        return storedVelocity;
+    }
+
+    float getRadius(){
+        return radius;
+    }
+
+    float getMass() {
+        return mass;
+    }
+
+    float getSpeed(){
+        return speed;
+    }
+
+    bool checkIsBot(){
+        return isBot;
+    }
+
+    void draw(){
+        circle(getCurrentPos().getX(),getCurrentPos().getY(),getRadius());
+    }
+
+
 };
+
+
 
 
 #endif // PLAYER_H_INCLUDED
