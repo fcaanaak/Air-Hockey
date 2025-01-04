@@ -2,15 +2,17 @@
 #include <graphics.h>
 #include <math.h>
 #include <Windows.h>
+#include <string>
+#include <cstdlib>
 
 #include "Player.h"
 #include "Vector2.h"
 #include "Puck.h"
 
 #define WINDOWX 800
-#define WINDOWY 1000
+#define WINDOWY 800
 #define FRICTION 0.07
-#define BOT_SPEED 20
+#define BOT_SPEED 15
 
 
 float start_time = 0;
@@ -22,6 +24,81 @@ bool activate = true;
 float global_time = 0;
 
 
+class AirHockey{
+
+private:
+    Player player;
+    Player bot;
+
+
+
+    void draw(){
+
+        drawBackground();
+
+        player.draw();
+        bot.draw();
+
+
+    }
+
+    void drawBackground(){
+        setcolor(12);
+
+        // Draw the lil ice hockey rink lines
+        circle(WINDOWX/2.0,WINDOWY/2.0, 90);
+
+
+        line(0,WINDOWY/2.0,WINDOWX/2.0 - 90,WINDOWY/2.0);
+
+        line(WINDOWX/2.0 + 90,WINDOWY/2.0,WINDOWX,WINDOWY/2.0);
+
+        settextstyle(COMPLEX_FONT, HORIZ_DIR, 0);
+        setusercharsize(2,1,2,1);
+
+
+        outtextxy(WINDOWX - textwidth(bot.getScore()), WINDOWY/2.0 - textheight(bot.getScore()), bot.getScore());
+        outtextxy(WINDOWX - textwidth(player.getScore()), WINDOWY/2.0, player.getScore());
+
+        // draw the goals
+        setfillstyle(EMPTY_FILL,0);
+        sector(WINDOWX/2.0, WINDOWY, 0, 180, WINDOWX/4.0, 2*player.getRadius());// players goal
+        sector(WINDOWX/2.0, 0, 180, 360, WINDOWX/4.0, 2*bot.getRadius());// enemies goal
+
+        setcolor(0);
+    }
+
+    void movePlayer(int x, int y){
+
+        player.getCurrentPos().setX(x);
+
+        if (y > WINDOWY/2.0){
+            player.getCurrentPos().setY(y);
+        }
+
+
+    }
+
+public:
+
+    static float c_to_scrn(float point){
+        return point + WINDOWX/2.0;
+    }
+
+    void update(){
+        draw();
+
+
+    }
+
+    AirHockey() : bot(60, 6, 20, true), player(60, 6, 20, false) {
+
+
+
+    }
+
+
+};
 
 /*
 TO DO
@@ -47,137 +124,9 @@ float c_to_scrn(float point){
 
 
 
-float dist_x;
-float dist_y;
-
-
-float speed_mod = 1;
-
-
-
-// A function for hit detection for player objects (aka player and the bot)
-void player_hit_detect(Player &player, Puck &puck, bool isbot){
-
-    // Always track the distance between the player and the puck
-    dist_x = (player.getCurrentPos().getX()-WINDOWX/2.0) - puck.position.getX();
-    dist_y = (player.getCurrentPos().getY()-WINDOWX/2.0) - puck.position.getY();
-
-    if (isbot){speed_mod = 0.2;}
-    else{speed_mod = 1;}
-
-    // If the puck has entered the region of the player and we havent already collided
-    if (sqrt( pow(dist_x,2) + pow(dist_y,2) ) <= (player.getRadius() + puck.radius)){
-
-
-        // Note the current time
-        start_time = global_time;
-
-        Vector2 distance(dist_x,dist_y);
-
-
-        // Convert the distances into vector components
-        /*
-        distance.x = dist_x;
-        distance.y = dist_y;
-        */
-
-
-        // Get the unit vector pointing in the direction of the players center to
-        // the pucks center
-        Vector2 direction(distance.xDirection(), distance.yDirection());// probably redefine this outside the function first
-
-
-
-
-        // If the puck is to the left of the player upon collision
-        if (dist_x > 0){
-
-            puck.position.setX(puck.position.getX() - puck.radius*(puck.velocity.norm()/player.getSpeed()) );
-
-            if (abs(player.getVelocity().getX()) == 0){
-
-                puck.velocity.setX(-direction.getX()*abs(puck.velocity.getX()));
-            }
-
-            else{
-
-                puck.velocity.setX(-direction.getX()*abs(puck.velocity.getX()));
-
-                puck.velocity.setX(-direction.getX() * player.getSpeed()*abs(player.getVelocity().getX()*speed_mod));
-            }
-
-
-        }
-
-        // If the puck is to the right of thce player upon collision
-        else if (dist_x < 0){
-
-            // First move the puck away from the player as if it was being pushed
-            // Note the amount it gets pushed is a percentage of the radius
-            // which depends on the velocity its travelling at. This makes it
-            // so the puck doesnt teleport upon collision when its moving slowly
-
-            puck.position.setX(puck.position.getX() + puck.radius*(puck.velocity.norm()/player.getSpeed()));
-
-            // If the player isnt moving in the x direction
-            if (abs(player.getVelocity().getX()) == 0){
-
-                // Simply change the direction of the puck if it hits
-                // the player while they are stationary
-                puck.velocity.setX(-direction.getX()*abs(puck.velocity.getX()));
-            }
-
-            // If the player hits the puck at all, apply the players
-            // velocity to the puck
-            else{puck.velocity.setX(-direction.getX() * player.getSpeed()*abs(player.getVelocity().getX()*speed_mod));}
-
-
-        }
-
-        // If the puck is above the player upon collision
-        if (dist_y > 0){
-
-            puck.position.setY(puck.position.getY() - puck.radius*(puck.velocity.norm()/player.getSpeed()));
-
-            if (abs(player.getVelocity().getY()) == 0){
-
-                puck.velocity.setY(direction.getY()*abs(puck.velocity.getY()));
-            }
-
-            else{
-
-                puck.velocity.setY(direction.getY() * player.getSpeed()*abs(player.getVelocity().getY()*speed_mod));
-            }
-
-
-        }
-
-        // If the puck is below the player upon collision
-        else if (dist_y < 0){
-
-
-            puck.position.setY(puck.position.getY() + puck.radius*(puck.velocity.norm()/player.getSpeed()));
-
-            if (abs(player.getVelocity().getY()) == 0){
-
-
-                puck.velocity.setY(direction.getY()*abs(puck.velocity.getY()));
-            }
-
-            else{
-                puck.velocity.setY(direction.getY() * player.getSpeed()*abs(player.getVelocity().getY()*speed_mod));
-            }
-
-        }
-
-       // start_time = global_time;
-
-    }
-
-}
-
 
 void drawBackground(){
+
     setcolor(12);
 
     // Draw the lil ice hockey rink lines
@@ -188,8 +137,20 @@ void drawBackground(){
 
     line(WINDOWX/2.0 + 90,WINDOWY/2.0,WINDOWX,WINDOWY/2.0);
 
+    settextstyle(COMPLEX_FONT, HORIZ_DIR, 0);
+    setusercharsize(2,1,2,1);
+    outtextxy(WINDOWX - textwidth("2"), WINDOWY/2.0 - textheight("2"), "2");
+    outtextxy(WINDOWX - textwidth("3"), WINDOWY/2.0, "3");
+
+    // draw the goals
+    setfillstyle(EMPTY_FILL,0);
+    sector(WINDOWX/2.0, WINDOWY, 0, 180, WINDOWX/4.0, 120);// players goal
+    sector(WINDOWX/2.0, 0, 180, 360, WINDOWX/4.0, 120);// enemies goal
+
     setcolor(0);
 }
+
+
 
 // UPDATE FUNCTION
 void update(Puck &puck,Player &player,Player &bot){
@@ -275,11 +236,12 @@ void update(Puck &puck,Player &player,Player &bot){
         bot.getVelocity().setY(-BOT_SPEED);
     }
 
-
+    /*
     player_hit_detect(player,puck,false);
     player_hit_detect(bot,puck,true);
-
-
+    */
+    player.checkCollision(puck);
+    bot.checkCollision(puck);
 
 
     if (global_time >= start_time + 100){
@@ -364,7 +326,7 @@ int main(){
     test.acceleration.setX(0);
     test.acceleration.setY(0);
 
-    Player user(60,6,20,false);
+    Player player(60,6,20,false);
 
     Player bot(60,6,20,true);
     bot.getCurrentPos().setX(WINDOWX/2.0);
@@ -373,7 +335,7 @@ int main(){
 
 
     while (true){
-        update(test,user,bot);
+        update(test,player,bot);
     }
 
     // Closing shit
