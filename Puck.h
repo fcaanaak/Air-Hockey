@@ -2,24 +2,21 @@
 #define PUCK_H_INCLUDED
 
 #include "Vector2.h"
+#include "CircularEntity.h"
 
 // Object that can move on screen
-struct Puck{
 
-    // mass in kg
-    float mass = 50;
 
-    float radius = 30;
+class Puck: public CircularEntity{
 
-    float speed = 0;
-
-    Vector2 position;
-
-    Vector2 velocity;
-
-    Vector2 acceleration;
-
+public:
+    Puck(float _radius, float _mass, float _speed){
+        mass = _mass;
+        radius = _radius;
+        speed = _speed;
+    }
 
 };
+
 
 #endif // PUCK_H_INCLUDED
