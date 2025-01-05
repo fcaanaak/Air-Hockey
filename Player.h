@@ -53,8 +53,18 @@ public:
         return isBot;
     }
 
-    void update(){
 
+
+    void movementUpdate(){
+        if (!isBot){
+            getVelocity().setX( (getCurrentPos().getX() - getLastPos().getX()) / (Data::fps) );
+            getVelocity().setY( (getCurrentPos().getY() - getLastPos().getY()) / (Data::fps) );
+
+        }
+    }
+
+    void update(){
+        movementUpdate();
 
     }
 

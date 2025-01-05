@@ -8,11 +8,7 @@
 #include "Player.h"
 #include "Vector2.h"
 #include "Puck.h"
-
-#define WINDOWX 800
-#define WINDOWY 800
-#define FRICTION 0.07
-#define BOT_SPEED 15
+#include "Data.h"
 
 
 /*
@@ -22,7 +18,11 @@
     MOVE BOT BEHAVIOR EITHER INTO PLAYER CLASS OR JUST MAKE A BOT CLASS
     ADD A FUNCTION TO THE PUCK CLASS THAT WILL DECREASE ITS SPEED DUE TO FRICTION(COPY WHATS INSIDE OF THE UPDAATE FUNCTION IN THIS FILE)
 
+    FIX THE ERROR THAT MAKES THE BOT COLLECT THE PUCK BACK FROM ITS GOAL
+
     CONTINUE MOVING CODE FROM THE UPDATE FUNCTION INTO THE AirHockey CLASS
+
+
 
 
 */
@@ -57,24 +57,24 @@ private:
         setcolor(12);
 
         // Draw the lil ice hockey rink lines
-        circle(WINDOWX/2.0,WINDOWY/2.0, 90);
+        circle(Data::windowWidth/2.0,Data::windowHeight/2.0, 90);
 
 
-        line(0,WINDOWY/2.0,WINDOWX/2.0 - 90,WINDOWY/2.0);
+        line(0,Data::windowHeight/2.0,Data::windowWidth/2.0 - 90,Data::windowHeight/2.0);
 
-        line(WINDOWX/2.0 + 90,WINDOWY/2.0,WINDOWX,WINDOWY/2.0);
+        line(Data::windowWidth/2.0 + 90,Data::windowHeight/2.0,Data::windowWidth,Data::windowHeight/2.0);
 
         settextstyle(COMPLEX_FONT, HORIZ_DIR, 0);
         setusercharsize(2,1,2,1);
 
 
-        outtextxy(WINDOWX - textwidth(bot.getScore()), WINDOWY/2.0 - textheight(bot.getScore()), bot.getScore());
-        outtextxy(WINDOWX - textwidth(player.getScore()), WINDOWY/2.0, player.getScore());
+        outtextxy(Data::windowWidth - textwidth(bot.getScore()), Data::windowHeight/2.0 - textheight(bot.getScore()), bot.getScore());
+        outtextxy(Data::windowWidth - textwidth(player.getScore()), Data::windowHeight/2.0, player.getScore());
 
         // draw the goals
         setfillstyle(EMPTY_FILL,0);
-        sector(WINDOWX/2.0, WINDOWY, 0, 180, WINDOWX/4.0, 2*player.getRadius());// players goal
-        sector(WINDOWX/2.0, 0, 180, 360, WINDOWX/4.0, 2*bot.getRadius());// enemies goal
+        sector(Data::windowWidth/2.0, Data::windowHeight, 0, 180, Data::windowWidth/4.0, 2*player.getRadius());// players goal
+        sector(Data::windowWidth/2.0, 0, 180, 360, Data::windowWidth/4.0, 2*bot.getRadius());// enemies goal
 
         setcolor(0);
     }
@@ -83,7 +83,7 @@ private:
 
         player.getCurrentPos().setX(x);
 
-        if (y > WINDOWY/2.0){
+        if (y > Data::windowHeight/2.0){
             player.getCurrentPos().setY(y);
         }
 
@@ -93,7 +93,7 @@ private:
 public:
 
     static float c_to_scrn(float point){
-        return point + WINDOWX/2.0;
+        return point + Data::windowWidth/2.0;
     }
 
     void update(){
@@ -129,7 +129,7 @@ TO DO
 // as cartesian vectors
 float c_to_scrn(float point){
 
-    return point + WINDOWX/2.0;
+    return point + Data::windowWidth/2.0;
 
 }
 
@@ -141,22 +141,22 @@ void drawBackground(){
     setcolor(12);
 
     // Draw the lil ice hockey rink lines
-    circle(WINDOWX/2.0,WINDOWY/2.0, 90);
+    circle(Data::windowWidth/2.0,Data::windowHeight/2.0, 90);
 
 
-    line(0,WINDOWY/2.0,WINDOWX/2.0 - 90,WINDOWY/2.0);
+    line(0,Data::windowHeight/2.0,Data::windowWidth/2.0 - 90,Data::windowHeight/2.0);
 
-    line(WINDOWX/2.0 + 90,WINDOWY/2.0,WINDOWX,WINDOWY/2.0);
+    line(Data::windowWidth/2.0 + 90,Data::windowHeight/2.0,Data::windowWidth,Data::windowHeight/2.0);
 
     settextstyle(COMPLEX_FONT, HORIZ_DIR, 0);
     setusercharsize(2,1,2,1);
-    outtextxy(WINDOWX - textwidth("2"), WINDOWY/2.0 - textheight("2"), "2");
-    outtextxy(WINDOWX - textwidth("3"), WINDOWY/2.0, "3");
+    outtextxy(Data::windowWidth - textwidth("2"), Data::windowHeight/2.0 - textheight("2"), "2");
+    outtextxy(Data::windowWidth - textwidth("3"), Data::windowHeight/2.0, "3");
 
     // draw the goals
     setfillstyle(EMPTY_FILL,0);
-    sector(WINDOWX/2.0, WINDOWY, 0, 180, WINDOWX/4.0, 120);// players goal
-    sector(WINDOWX/2.0, 0, 180, 360, WINDOWX/4.0, 120);// enemies goal
+    sector(Data::windowWidth/2.0, Data::windowHeight, 0, 180, Data::windowWidth/4.0, 120);// players goal
+    sector(Data::windowWidth/2.0, 0, 180, 360, Data::windowWidth/4.0, 120);// enemies goal
 
     setcolor(0);
 }
@@ -170,7 +170,8 @@ void update(Puck &puck,Player &player,Player &bot){
     drawBackground();
 
     // Draw the circle
-    circle(c_to_scrn(puck.getCurrentPos().getX()),c_to_scrn(puck.getCurrentPos().getY()),puck.getRadius());
+    //circle(c_to_scrn(puck.getCurrentPos().getX()),c_to_scrn(puck.getCurrentPos().getY()),puck.getRadius());
+    puck.draw();
 
 
     // Shit to do with the player puck hitting thing
@@ -179,7 +180,7 @@ void update(Puck &puck,Player &player,Player &bot){
 
     // Stop the player from moving their mouse to the
     // other half of the screen (not their side >:( )
-    if (mousey() > WINDOWY/2.0){
+    if (mousey() > Data::windowHeight/2.0){
       player.getCurrentPos().setY(mousey());
     }
 
@@ -197,13 +198,7 @@ void update(Puck &puck,Player &player,Player &bot){
     player.getVelocity().setX( (player.getCurrentPos().getX() - player.getLastPos().getX())/(100/6.0) );
     player.getVelocity().setY( (player.getCurrentPos().getY() - player.getLastPos().getY())/(100/6.0) );
 
-
-
-    bot.getStoredVelocity().setX( (bot.getCurrentPos().getX() - bot.getLastPos().getX()) / (100/6.0) );
-    bot.getStoredVelocity().setY( (bot.getCurrentPos().getY() - bot.getLastPos().getY()) / (100/6.0) );
-
-
-
+    /*
     // Add acceleration to velocity
     puck.getVelocity().setX(puck.getVelocity().getX() + puck.getAcceleration().getX());
     puck.getVelocity().setY(puck.getVelocity().getY() - puck.getAcceleration().getY());
@@ -211,7 +206,7 @@ void update(Puck &puck,Player &player,Player &bot){
     // Add velocity to position
     puck.getCurrentPos().setX( puck.getCurrentPos().getX() + puck.getVelocity().getX() );
     puck.getCurrentPos().setY( puck.getCurrentPos().getY() - puck.getVelocity().getY() );
-
+    */
 
     // Moving the bot
     bot.getCurrentPos().incrementX(bot.getVelocity().getX());
@@ -220,31 +215,31 @@ void update(Puck &puck,Player &player,Player &bot){
     // WORK ON THIS, BOT MOVEMENT LOGIC
 
     // If the puck is to the right of the bot, move right
-    if (puck.getCurrentPos().getX() > bot.getCurrentPos().getX() + bot.getRadius() - WINDOWX/2.0){
-        bot.getVelocity().setX(BOT_SPEED);
+    if (puck.getCurrentPos().getX() > bot.getCurrentPos().getX() + bot.getRadius() - Data::windowWidth/2.0){
+        bot.getVelocity().setX(Data::botSpeed);
     }
 
     // If the puck is to the left of the bot, move right
-    else if (puck.getCurrentPos().getX() < bot.getCurrentPos().getX()-bot.getRadius() - WINDOWX/2.0){
-        bot.getVelocity().setX(-BOT_SPEED);
+    else if (puck.getCurrentPos().getX() < bot.getCurrentPos().getX()-bot.getRadius() - Data::windowWidth/2.0){
+        bot.getVelocity().setX(-Data::botSpeed);
     }
 
     // If the puck is above the center of the screen, move down
     if (puck.getCurrentPos().getY() < 0){
-        bot.getVelocity().setY(BOT_SPEED);
+        bot.getVelocity().setY(Data::botSpeed);
     }
 
     // If the puck is on the players side of the screen, retreat back
     else if (puck.getCurrentPos().getY() > 0 && bot.getCurrentPos().getY() > bot.getRadius()){
-        bot.getVelocity().setY(-BOT_SPEED);
+        bot.getVelocity().setY(-Data::botSpeed);
     }
 
 
 
     else{bot.getVelocity().setY(0);}
 
-    if (puck.getCurrentPos().getY() < bot.getCurrentPos().getY()-WINDOWY/2.0){
-        bot.getVelocity().setY(-BOT_SPEED);
+    if (puck.getCurrentPos().getY() < bot.getCurrentPos().getY()-Data::windowHeight/2.0){
+        bot.getVelocity().setY(-Data::botSpeed);
     }
 
     /*
@@ -254,49 +249,7 @@ void update(Puck &puck,Player &player,Player &bot){
     player.checkCollision(puck);
     bot.checkCollision(puck);
 
-
-    if (global_time >= start_time + 100){
-        puck.getAcceleration().setY(0);
-        puck.getAcceleration().setX(0);
-    }
-
-
-    /*
-    * Puck boundary behavior
-    */
-
-    // If the puck is too far right
-    if (( c_to_scrn(puck.getCurrentPos().getX() + puck.getRadius())  >= WINDOWX)){
-        puck.getCurrentPos().setX(WINDOWX - puck.getRadius()- WINDOWX/2);
-
-        puck.getVelocity().setX( -puck.getVelocity().getX() );
-    }
-
-    // If the puck is too farleft
-    if (c_to_scrn(puck.getCurrentPos().getX() - puck.getRadius()) <= 0){
-
-
-        puck.getCurrentPos().setX(puck.getRadius() - 400);
-        puck.getVelocity().setX(-puck.getVelocity().getX());
-
-    }
-
-    // If the puck is too far up
-    if (c_to_scrn(puck.getCurrentPos().getY() + puck.getRadius())  >= WINDOWY) {
-
-        puck.getCurrentPos().setY(WINDOWY - c_to_scrn(puck.getRadius()));
-        puck.getVelocity().setY( -puck.getVelocity().getY() );
-        //puck.getCurrentPos().getY() = WINDOWY - puck.getRadius()- WINDOWY/2;
-
-    }
-
-    // If the puck is too far down
-    if (c_to_scrn(puck.getCurrentPos().getY() - puck.getRadius()) <= 0){
-
-        puck.getCurrentPos().setY(puck.getRadius()-400);
-        puck.getVelocity().setY(-puck.getVelocity().getY());
-
-    }
+    puck.update();
 
 
     // Frame delay for animation
@@ -308,12 +261,12 @@ void update(Puck &puck,Player &player,Player &bot){
     player.getLastPos().setY(player.getCurrentPos().getY());
 
     if (abs(puck.getVelocity().getX()) > 0){
-        puck.getVelocity().incrementX(-(puck.getVelocity().getX() * FRICTION));
+        puck.getVelocity().incrementX(-(puck.getVelocity().getX() * Data::friction));
     }
 
     if (abs(puck.getVelocity().getY()) > 0){
 
-        puck.getVelocity().incrementY(-(puck.getVelocity().getY() * FRICTION));
+        puck.getVelocity().incrementY(-(puck.getVelocity().getY() * Data::friction));
     }
 
     // Clear screen
@@ -325,7 +278,7 @@ int main(){
 
     int gd = DETECT, gm;
 
-    initwindow(WINDOWX,WINDOWY);
+    initwindow(Data::windowWidth,Data::windowHeight);
 
     setbkcolor(11);
 
@@ -334,7 +287,7 @@ int main(){
     Player player(60,6,20,false);
 
     Player bot(60,6,20,true);
-    bot.getCurrentPos().setX(WINDOWX/2.0);
+    bot.getCurrentPos().setX(Data::windowWidth/2.0);
     bot.getCurrentPos().setY(bot.getRadius());
 
     while (true){

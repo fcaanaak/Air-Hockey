@@ -46,7 +46,7 @@ public:
     }
 
 
-    void draw(){
+    virtual void draw(){
         circle(getCurrentPos().getX(),getCurrentPos().getY(),getRadius());
     }
 
